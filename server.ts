@@ -1722,10 +1722,11 @@ async function startServer() {
     });
   }
 
+  if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`[Full-Stack Server] Running on http://localhost:${PORT}`);
     console.log(`[Full-Stack Server] API endpoints loaded and active.`);
   });
 }
 
-startServer();
+module.exports = app;
