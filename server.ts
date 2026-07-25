@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
 
@@ -1724,6 +1723,7 @@ If they ignored suggestions or have severe structure deficits, grade them strict
 // Static/Dev server bootstrapping
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -1745,5 +1745,15 @@ async function startServer() {
   }
 }
 
-await startServer();
-export default app;
+const isVercelDeployment = process.env.VERCEL === '1';
+const isLocalDev = !isVercelDeployment && process.env.NODE_ENV !== 'production';
+
+if (isLocalDev) {
+  startServer().catch((error) => {
+    console.error("Failed to start local server:", error);
+  });
+}
+
+export default async function vercelHandler(req: any, res: any) {
+  return app(req, res);
+}
