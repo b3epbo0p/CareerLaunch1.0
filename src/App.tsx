@@ -1,4 +1,3 @@
-declare module 'react';
 import React, { useState, useEffect } from 'react';
 import { UserProfile, MockInterviewSession } from './types';
 import AuthScreen from './components/AuthScreen';
