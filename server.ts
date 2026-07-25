@@ -1,4 +1,5 @@
 import express from "express";
+import fs from "fs";
 import path from "path";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
@@ -1745,15 +1746,8 @@ async function startServer() {
   }
 }
 
-const isVercelDeployment = process.env.VERCEL === '1';
-const isLocalDev = !isVercelDeployment && process.env.NODE_ENV !== 'production';
+startServer().catch((error) => {
+  console.error("Failed to configure server routes:", error);
+});
 
-if (isLocalDev) {
-  startServer().catch((error) => {
-    console.error("Failed to start local server:", error);
-  });
-}
-
-export default async function vercelHandler(req: any, res: any) {
-  return app(req, res);
-}
+export default app;
