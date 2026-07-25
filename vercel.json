@@ -4,18 +4,10 @@
     {
       "src": "server.ts",
       "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist",
-        "buildCommand": "vite build"
-      }
     }
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "server.ts" },
-    { "src": "/(.*)", "dest": "/$1" }
+    { "src": "/(.*)", "dest": "server.ts" }
   ]
 }

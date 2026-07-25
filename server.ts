@@ -13,14 +13,29 @@ const PORT = 3000;
 
 // Lazy initialization of Gemini client with telemetry headers
 let aiInstance: GoogleGenAI | null = null;
+function resolveGeminiApiKey() {
+  const viteKey = process.env.VITE_GEMINI_API_KEY?.trim();
+  const defaultKey = process.env.GEMINI_API_KEY?.trim();
+  const apiKey = viteKey || defaultKey || null;
+  const source = viteKey ? "VITE_GEMINI_API_KEY" : defaultKey ? "GEMINI_API_KEY" : null;
+
+  if (source) {
+    console.log(`[Gemini API] Loaded key from ${source}`);
+  } else {
+    console.warn("[Gemini API] No Gemini API key found. Set GEMINI_API_KEY or VITE_GEMINI_API_KEY in Vercel project settings.");
+  }
+
+  return { apiKey, source };
+}
+
 function getGeminiClient(): GoogleGenAI {
-  const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+  const { apiKey } = resolveGeminiApiKey();
   if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey.trim() === "") {
-    throw new Error("GEMINI_API_KEY is not configured. Please add your Gemini API Key in the Settings > Secrets panel of Google AI Studio.");
+    throw new Error("Gemini API key is not configured. Please add GEMINI_API_KEY or VITE_GEMINI_API_KEY in your Vercel environment variables.");
   }
   if (!aiInstance) {
     aiInstance = new GoogleGenAI({
-      apiKey: apiKey,
+      apiKey,
       httpOptions: {
         headers: {
           'User-Agent': 'aistudio-build',
@@ -1723,10 +1738,12 @@ async function startServer() {
   }
 
   if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[Full-Stack Server] Running on http://localhost:${PORT}`);
-    console.log(`[Full-Stack Server] API endpoints loaded and active.`);
-  });
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`[Full-Stack Server] Running on http://localhost:${PORT}`);
+      console.log(`[Full-Stack Server] API endpoints loaded and active.`);
+    });
+  }
 }
 
-module.exports = app;
+await startServer();
+export default app;
